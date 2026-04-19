@@ -255,41 +255,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
   Future<bool> _saveBookingToFirestore(Map<String, dynamic> booking) async {
     try {
-      // Check for booking conflicts before writing
-      final hallTitle = booking['hall']['title'] as String;
-      final selectedStart = booking['startDate'] as DateTime;
-      final selectedEnd = booking['endDate'] as DateTime;
-
-      final existingBookings =
-          await FirebaseFirestore.instance
-              .collection('hallbook')
-              .where('HallType', isEqualTo: hallTitle)
-              .get();
-
-      for (final doc in existingBookings.docs) {
-        final eventTime = (doc.data())['EventTime'] as String?;
-        if (eventTime == null) continue;
-
-        final parts = eventTime.split(' to ');
-        if (parts.length != 2) continue;
-
-        final existingStart = DateTime.parse(parts[0].trim());
-        final existingEnd = DateTime.parse(parts[1].trim());
-
-        // Overlap: selectedStart <= existingEnd && selectedEnd >= existingStart
-        if (!selectedStart.isAfter(existingEnd) &&
-            !selectedEnd.isBefore(existingStart)) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'This hall is already booked for the selected dates. Please choose different dates.',
-              ),
-            ),
-          );
-          return false;
-        }
-      }
-
       final username = booking['username'];
 
       // get the user doc from collection
